@@ -10,6 +10,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,18 +32,16 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(BeerController.class)
 class BeerControllerTest {
 
+    @Autowired
     MockMvc mockMvc;
-
-    @InjectMocks
-    BeerController beerController;
 
     @Mock
     BeerDto beerDto;
 
-    @Mock
+    @MockBean
     BeerService beerService;
 
     @Mock
@@ -59,7 +60,6 @@ class BeerControllerTest {
 
         List<BeerDto> beers = List.of(beerDto);
         beersPaged = new BeerPagedList(beers, PageRequest.of(1, 1), 2);
-        mockMvc = MockMvcBuilders.standaloneSetup(beerController).build();
     }
 
     @Test
@@ -72,6 +72,7 @@ class BeerControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$.id").value(beerDto.getId().toString()))
                 .andExpect(jsonPath("$.beerName").value("Brahma"));
+
 
         then(beerService).should(times(1)).findBeerById(any());
     }
